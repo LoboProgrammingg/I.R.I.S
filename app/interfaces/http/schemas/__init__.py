@@ -1,5 +1,11 @@
 """HTTP request/response schemas."""
 
+from app.interfaces.http.schemas.contacts import (
+    ContactResponse,
+    CreateContactRequest,
+    OptOutRequest,
+    UpdateContactRequest,
+)
 from app.interfaces.http.schemas.identity import (
     CreateTenantRequest,
     CreateUserRequest,
@@ -14,4 +20,8 @@ __all__ = [
     "TenantResponse",
     "UserResponse",
     "ErrorResponse",
+    "CreateContactRequest",
+    "UpdateContactRequest",
+    "OptOutRequest",
+    "ContactResponse",
 ]
