@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from app.config.logging import configure_logging, get_logger
 from app.config.settings import get_settings
 from app.interfaces.http.routers import health
+from app.interfaces.http.routers import tenants
 
 
 @asynccontextmanager
@@ -42,6 +43,7 @@ def create_app() -> FastAPI:
 
     # Register routers
     app.include_router(health.router)
+    app.include_router(tenants.router)
 
     return app
 
