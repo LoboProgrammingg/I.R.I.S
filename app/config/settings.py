@@ -35,6 +35,20 @@ class Settings(BaseSettings):
     celery_broker_url: str = "redis://localhost:6379/1"
     celery_result_backend: str = "redis://localhost:6379/2"
 
+    # Paytime
+    paytime_base_url: str = "https://api.paytime.com.br/v1"
+    paytime_api_key: str = ""
+    paytime_webhook_secret: str = ""
+
+    # Gemini LLM
+    gemini_api_key: str = ""
+    gemini_model_name: str = "gemini-2.5-pro"
+    gemini_timeout_seconds: int = 30
+
+    # AI Conversation State
+    ai_state_ttl_seconds: int = 1800  # 30 minutes
+    ai_confirmation_ttl_seconds: int = 300  # 5 minutes
+
     @property
     def is_production(self) -> bool:
         """Check if running in production."""

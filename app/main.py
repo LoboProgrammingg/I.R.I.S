@@ -7,7 +7,8 @@ from fastapi import FastAPI
 
 from app.config.logging import configure_logging, get_logger
 from app.config.settings import get_settings
-from app.interfaces.http.routers import contacts, health, tenants
+from app.interfaces.http.routers import ai, boletos, contacts, health, outbox, tenants
+from app.interfaces.http.webhooks import paytime as paytime_webhook
 
 
 @asynccontextmanager
@@ -44,6 +45,14 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(tenants.router)
     app.include_router(contacts.router)
+    app.include_router(boletos.router)
+    app.include_router(outbox.router)
+
+    # Register webhooks
+    app.include_router(paytime_webhook.router)
+
+    # Register AI endpoints (internal)
+    app.include_router(ai.router)
 
     return app
 
