@@ -1,0 +1,91 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - IRIS_APP_ENV=development
+      - IRIS_DEBUG=true
+      - IRIS_DATABASE_URL=postgresql+asyncpg://iris:iris@postgres:5432/iris
+      - IRIS_REDIS_URL=redis://redis:6379/0
+      - IRIS_CELERY_BROKER_URL=redis://redis:6379/1
+      - IRIS_CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app:ro
+    restart: unless-stopped
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: celery -A app.infrastructure.celery.app worker --loglevel=info
+    environment:
+      - IRIS_APP_ENV=development
+      - IRIS_DEBUG=true
+      - IRIS_DATABASE_URL=postgresql+asyncpg://iris:iris@postgres:5432/iris
+      - IRIS_REDIS_URL=redis://redis:6379/0
+      - IRIS_CELERY_BROKER_URL=redis://redis:6379/1
+      - IRIS_CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: celery -A app.infrastructure.celery.app beat --loglevel=info
+    environment:
+      - IRIS_APP_ENV=development
+      - IRIS_DEBUG=true
+      - IRIS_DATABASE_URL=postgresql+asyncpg://iris:iris@postgres:5432/iris
+      - IRIS_REDIS_URL=redis://redis:6379/0
+      - IRIS_CELERY_BROKER_URL=redis://redis:6379/1
+      - IRIS_CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      - celery-worker
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=iris
+      - POSTGRES_PASSWORD=iris
+      - POSTGRES_DB=iris
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iris"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
