@@ -76,7 +76,7 @@ class UserModel(Base):
     )
     tenant_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("tenants.id", name="fk_users_tenant_id", ondelete="CASCADE"),
+        ForeignKey("tenants.id", name="fk_users_tenant_id", ondelete="RESTRICT"),
         nullable=False,
         index=True,
     )
